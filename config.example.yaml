@@ -1,0 +1,117 @@
+# QHFT系统配置文件示例
+
+# 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 8080
+  debug: false
+
+# 数据库配置
+database:
+  driver: "postgres"
+  host: "localhost"
+  port: 5432
+  user: "qhft_user"
+  password: "your_password"
+  dbname: "qhft_db"
+  sslmode: "disable"
+  max_open_conns: 20
+  max_idle_conns: 5
+
+# 数据源配置
+datasources:
+  # Polygon.io API配置
+  polygon:
+    enabled: true
+    api_key: "YOUR_POLYGON_API_KEY"
+    base_url: "https://api.polygon.io"
+    timeout_seconds: 30
+    retry_attempts: 3
+    retry_delay_seconds: 5
+  
+  # 备用数据源（如有需要）
+  backup_source:
+    enabled: false
+    api_key: "YOUR_BACKUP_API_KEY"
+    base_url: "https://api.backup-source.com"
+    timeout_seconds: 30
+
+# 交易配置
+trading:
+  # 交易账户配置
+  account:
+    broker: "alpaca"  # 替换为您的券商API
+    api_key: "YOUR_BROKER_API_KEY"
+    api_secret: "YOUR_BROKER_API_SECRET"
+    paper_trading: true  # 是否使用模拟交易
+  
+  # 交易限制
+  limits:
+    max_positions: 20  # 最大持仓数量
+    max_position_size_percent: 5.0  # 单个持仓最大资金比例
+    max_daily_trades: 50  # 每日最大交易次数
+    stop_loss_percent: 2.0  # 止损百分比
+    take_profit_percent: 5.0  # 止盈百分比
+
+# 筛选策略配置
+strategies:
+  default:
+    enabled: true
+    indicators:
+      - name: "MACD"
+        parameters:
+          fast_period: 12
+          slow_period: 26
+          signal_period: 9
+        buy_condition: "cross_above"  # MACD线上穿信号线
+        sell_condition: "cross_below"  # MACD线下穿信号线
+      
+      - name: "RSI"
+        parameters:
+          period: 14
+        buy_condition: "below_threshold"  # RSI低于阈值
+        buy_threshold: 30
+        sell_condition: "above_threshold"  # RSI高于阈值
+        sell_threshold: 70
+      
+      - name: "Bollinger Bands"
+        parameters:
+          period: 20
+          std_dev: 2
+        buy_condition: "price_below_lower"  # 价格低于下轨
+        sell_condition: "price_above_upper"  # 价格高于上轨
+
+# 监控配置
+monitoring:
+  health_check_interval_seconds: 60
+  system_metrics_interval_seconds: 300
+  alerts:
+    enabled: true
+    email:
+      enabled: true
+      smtp_server: "smtp.example.com"
+      smtp_port: 587
+      smtp_user: "your_email@example.com"
+      smtp_password: "your_email_password"
+      recipients:
+        - "alert_recipient@example.com"
+    
+    webhook:
+      enabled: false
+      url: "https://your-webhook-url.com"
+
+# 日志配置
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "json"  # text, json
+  output: "file"  # console, file, both
+  file_path: "./logs/qhft.log"
+  max_size_mb: 100
+  max_backups: 10
+  max_age_days: 30
+
+# 安全配置
+security:
+  encryption_key: "YOUR_ENCRYPTION_KEY"  # 用于加密敏感信息
+  jwt_secret: "YOUR_JWT_SECRET"  # 用于API认证
+  api_rate_limit: 100  # 每分钟API请求限制 
